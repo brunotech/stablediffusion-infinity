@@ -115,8 +115,7 @@ class StableDiffusion:
         self.token = token
         if device == "cuda":
             text2img = StableDiffusionPipeline.from_pretrained(
-                "CompVis/stable-diffusion-v1-4",
-                revision="fp16",
+                "CompVis/stable-diffusion-v1-4",                
                 torch_dtype=torch.float16,
                 use_auth_token=token,
             ).to(device)
