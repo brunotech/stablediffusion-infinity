@@ -52,7 +52,7 @@ def edge_pad(img, mask, mode=1):
         res[res == 9] = 0
         res[res > 0] = 1
         ylst, xlst = res.nonzero()
-        queue = [(y, x) for y, x in zip(ylst, xlst)]
+        queue = list(zip(ylst, xlst))
         # bfs here
         cnt = res.astype(np.float32)
         acc = img.astype(np.float32)
@@ -67,14 +67,18 @@ def edge_pad(img, mask, mode=1):
                 for yo, xo in offset:
                     yn = y + yo
                     xn = x + xo
-                    if 0 <= yn < h and 0 <= xn < w and nmask[yn][xn] < 1:
-                        if record.get((yn, xn), step) == step:
-                            acc[yn][xn] = acc[yn][xn] * cnt[yn][xn] + val
-                            cnt[yn][xn] += 1
-                            acc[yn][xn] /= cnt[yn][xn]
-                            if (yn, xn) not in record:
-                                record[(yn, xn)] = step
-                                target.append((yn, xn))
+                    if (
+                        0 <= yn < h
+                        and 0 <= xn < w
+                        and nmask[yn][xn] < 1
+                        and record.get((yn, xn), step) == step
+                    ):
+                        acc[yn][xn] = acc[yn][xn] * cnt[yn][xn] + val
+                        cnt[yn][xn] += 1
+                        acc[yn][xn] /= cnt[yn][xn]
+                        if (yn, xn) not in record:
+                            record[(yn, xn)] = step
+                            target.append((yn, xn))
             step += 1
             queue = target
         img = acc.astype(np.uint8)
@@ -97,7 +101,7 @@ def perlin_noise(img, mask):
     x, y = np.meshgrid(lin, lin)
     avg = img.mean(axis=0).mean(axis=0)
     # noise=[((perlin(x, y)+1)*128+avg[i]).astype(np.uint8) for i in range(3)]
-    noise = [((perlin(x, y) + 1) * 0.5 * 255).astype(np.uint8) for i in range(3)]
+    noise = [((perlin(x, y) + 1) * 0.5 * 255).astype(np.uint8) for _ in range(3)]
     noise = np.stack(noise, axis=-1)
     # mask=skimage.measure.block_reduce(mask,(8,8),np.min)
     # mask=mask.repeat(8, axis=0).repeat(8, axis=1)

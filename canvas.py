@@ -44,11 +44,10 @@ def prepare_canvas(width, height, canvas) -> Context2d:
 #     def __init__(self,layer,width=800, height=600) -> None:
 #         pass
 def multi_canvas(layer, width=800, height=600):
-    lst = [
+    return [
         CanvasProxy(document.querySelector(f"#canvas{i}"), width, height)
         for i in range(layer)
     ]
-    return lst
 
 
 class CanvasProxy:
@@ -160,12 +159,11 @@ class InfCanvas:
             last_state = self.mouse_state
             self.mouse_state = NOP_MODE
             self.image_move_cnt = 0
-            if last_state == IMAGE_MODE:
-                if True:
-                    self.clear_background()
-                    self.draw_buffer()
-                    self.canvas[2].clear()
-                    self.draw_selection_box()
+            if last_state == IMAGE_MODE and True:
+                self.clear_background()
+                self.draw_buffer()
+                self.canvas[2].clear()
+                self.draw_selection_box()
             if self.show_brush:
                 self.canvas[-2].clear()
                 self.show_brush = False
@@ -174,12 +172,11 @@ class InfCanvas:
             last_state = self.mouse_state
             self.mouse_state = NOP_MODE
             self.image_move_cnt = 0
-            if last_state == IMAGE_MODE:
-                if True:
-                    self.clear_background()
-                    self.draw_buffer()
-                    self.canvas[2].clear()
-                    self.draw_selection_box()
+            if last_state == IMAGE_MODE and True:
+                self.clear_background()
+                self.draw_buffer()
+                self.canvas[2].clear()
+                self.draw_selection_box()
 
         async def handle_mouse_move(event):
             x, y = get_event_pos(event)
@@ -325,10 +322,9 @@ class InfCanvas:
             self.run_button.on_click(test_button_clicked)
 
     def display(self):
-        if True:
-            self.clear_background()
-            self.draw_buffer()
-            self.draw_selection_box()
+        self.clear_background()
+        self.draw_buffer()
+        self.draw_selection_box()
         if self.test_mode:
             return [
                 self.test_button,
@@ -504,8 +500,7 @@ class InfCanvas:
         out_pil.save(out_buffer, format="PNG")
         out_buffer.seek(0)
         base64_bytes = base64.b64encode(out_buffer.read())
-        base64_str = base64_bytes.decode("ascii")
-        return base64_str
+        return base64_bytes.decode("ascii")
 
     def export(self):
         if self.sel_dirty:
@@ -536,12 +531,11 @@ class InfCanvas:
                 x0 = (xi - xmin) * self.patch_size
                 image[y0 : y0 + self.patch_size, x0 : x0 + self.patch_size] = buf
         ylst, xlst = image[:, :, -1].nonzero()
-        if len(ylst) > 0:
-            yt, xt = ylst.min(), xlst.min()
-            yb, xb = ylst.max(), xlst.max()
-            image = image[yt : yb + 1, xt : xb + 1]
-            return image
-        else:
+        if len(ylst) <= 0:
             return np.zeros(
                 (self.selection_size, self.selection_size, 4), dtype=np.uint8
             )
+        yt, xt = ylst.min(), xlst.min()
+        yb, xb = ylst.max(), xlst.max()
+        image = image[yt : yb + 1, xt : xb + 1]
+        return image
